@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUMEN | Executive Network & Supervisor</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <div class="brand-section">
+      <span class="brand-logo">LUMEN</span>
+      <span class="brand-badge">CORE v1.0</span>
+      <span class="brand-badge" id="hostNameBadge">{{ telemetry.hostName }}</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="profile-selector" id="profileSelector">
+        <button class="profile-btn {% if profile == 'Focus' %}active{% endif %}" onclick="switchProfile('Focus')">Focus</button>
+        <button class="profile-btn {% if profile == 'Dev' %}active{% endif %}" onclick="switchProfile('Dev')">Dev</button>
+        <button class="profile-btn {% if profile == 'Meeting' %}active{% endif %}" onclick="switchProfile('Meeting')">Meeting</button>
+      </div>
+
+      <div class="live-indicator">
+        <span class="status-dot"></span>
+        <span id="telemetryStatusText">SYSTEM ACTIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+
+    <!-- Top Telemetry Ribbon -->
+    <section class="telemetry-bar">
+      <div class="stat-cell">
+        <div class="stat-label">Processor Load</div>
+        <div class="stat-value" id="cpuStat">{{ telemetry.cpuPercent }}%</div>
+        <div class="stat-detail">{{ telemetry.cpuCores }} Cores Allocated</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Memory Usage</div>
+        <div class="stat-value" id="ramStat">{{ telemetry.memoryPercent }}%</div>
+        <div class="stat-detail" id="ramDetail">{{ telemetry.memoryUsedGb }} / {{ telemetry.memoryTotalGb }} GB</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Storage Array</div>
+        <div class="stat-value" id="diskStat">{{ telemetry.diskPercent }}%</div>
+        <div class="stat-detail" id="diskDetail">{{ telemetry.diskUsedGb }} / {{ telemetry.diskTotalGb }} GB</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Network Transfer</div>
+        <div class="stat-value" id="netStat">{{ telemetry.netBytesRecvMb }} MB</div>
+        <div class="stat-detail">Sent: <span id="netSent">{{ telemetry.netBytesSentMb }}</span> MB</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">System Uptime</div>
+        <div class="stat-value" id="uptimeStat">{{ telemetry.uptimeHours }}h</div>
+        <div class="stat-detail">Active PIDs: <span id="pidCount">{{ telemetry.activeProcessesCount }}</span></div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Environment</div>
+        <div class="stat-value" id="activeProfileText">{{ profile }}</div>
+        <div class="stat-detail" id="profileDetail">Standard Operations</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Grid -->
+    <div class="workspace-grid">
+
+      <!-- Left Column: Core Specialized Modules -->
+      <section class="main-column">
+
+        <!-- Tabbed Executive Services Card -->
+        <div class="card">
+          <nav class="tabs-header">
+            <button class="tab-btn active" onclick="selectTab('financeTab', this)">Personal Finance</button>
+            <button class="tab-btn" onclick="selectTab('codeTab', this)">Code & Writing</button>
+            <button class="tab-btn" onclick="selectTab('fitnessTab', this)">Athletics & Odds</button>
+            <button class="tab-btn" onclick="selectTab('procureTab', this)">Procurement & Review</button>
+            <button class="tab-btn" onclick="selectTab('philosophyTab', this)">Applied Philosophy</button>
+          </nav>
+
+          <!-- Tab 1: Personal Finance Hub -->
+          <div class="tab-panel active" id="financeTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Compound Growth & Opportunity Cost Engine</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="initialCapital">Initial Capital (EUR)</label>
+                <input type="number" id="initialCapital" value="10000" step="500">
+              </div>
+              <div class="form-group">
+                <label for="monthlyContribution">Monthly Contribution (EUR)</label>
+                <input type="number" id="monthlyContribution" value="600" step="50">
+              </div>
+              <div class="form-group">
+                <label for="annualReturnRate">Annual Return Rate (%)</label>
+                <input type="number" id="annualReturnRate" value="7.0" step="0.5">
+              </div>
+              <div class="form-group">
+                <label for="timeHorizonYears">Horizon (Years)</label>
+                <input type="number" id="timeHorizonYears" value="15" min="1" max="50">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="runCompoundProjection()">Calculate Growth Projection</button>
+              <button class="btn" onclick="runAssetAllocation()">Suggest Asset Allocation</button>
+              <button class="btn" onclick="evaluateExpenseDecision()">Evaluate Opportunity Cost</button>
+            </div>
+
+            <div class="terminal-output" id="financeOutput">
+[READY] Awaiting parameters. Click 'Calculate Growth Projection' to simulate wealth progression.
+            </div>
+          </div>
+
+          <!-- Tab 2: Code Tutor & Writing Clarity -->
+          <div class="tab-panel" id="codeTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Static Code Audit & Editorial Refinement</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="codeSnippet">Python Source Snippet</label>
+                <textarea id="codeSnippet" rows="6" placeholder="def process_batch(records):&#10;    result = ''&#10;    for r in records:&#10;        result += str(r)&#10;    return result"></textarea>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="runCodeAudit()">Audit Python Code</button>
+              <button class="btn" onclick="runProseAudit()">Audit Prose Clarity</button>
+              <button class="btn" onclick="runProseRefine()">Refine Text Draft</button>
+            </div>
+            <div class="terminal-output" id="codeOutput">
+[READY] Input Python code or executive text to inspect for complexity or passive voice.
+            </div>
+          </div>
+
+          <!-- Tab 3: Athletics & Odds Analytics -->
+          <div class="tab-panel" id="fitnessTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Programming Split & Implied Odds Calculation</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="trainingDays">Weekly Training Days</label>
+                <select id="trainingDays">
+                  <option value="3">3 Days (Full Body A/B)</option>
+                  <option value="4" selected>4 Days (Upper / Lower)</option>
+                  <option value="5">5 Days (Push / Pull / Legs)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="oddsInput">Decimal Odds (Comma-separated)</label>
+                <input type="text" id="oddsInput" value="1.85, 3.40, 4.20" placeholder="1.85, 3.40, 4.20">
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="generateWorkoutPlan()">Generate Split</button>
+              <button class="btn" onclick="calculateOddsProbability()">Compute Implied Probability & Margin</button>
+            </div>
+            <div class="terminal-output" id="fitnessOutput">
+[READY] Select weekly frequency or enter bookmaker decimal odds.
+            </div>
+          </div>
+
+          <!-- Tab 4: Procurement & Review -->
+          <div class="tab-panel" id="procureTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Amazon Direct Procurement & Trade-off Review</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="searchQuery">Amazon Product Search Query</label>
+                <input type="text" id="searchQuery" value="Keychron mechanical keyboard" placeholder="Product name or model">
+              </div>
+              <div class="form-group">
+                <label for="marketDomain">Amazon Marketplace</label>
+                <select id="marketDomain">
+                  <option value="amazon.es" selected>Amazon.es</option>
+                  <option value="amazon.com">Amazon.com</option>
+                  <option value="amazon.de">Amazon.de</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="searchAmazonCatalog()">Search & Generate Cart URIs</button>
+              <button class="btn" onclick="generateProductReview()">Synthesize Neutral Review</button>
+            </div>
+            <div class="terminal-output" id="procureOutput">
+[READY] Query Amazon product listings or generate neutral engineering reviews.
+            </div>
+          </div>
+
+          <!-- Tab 5: Applied Philosophy -->
+          <div class="tab-panel" id="philosophyTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Decision Frameworks & Cognitive Bias Mitigation</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="problemDescription">Operational Dilemma or Friction</label>
+                <textarea id="problemDescription" rows="4" placeholder="Project deadline delayed due to third-party vendor failure. Team experiencing fatigue."></textarea>
+              </div>
+              <div class="form-group">
+                <label for="philosophySchool">Philosophical Framework</label>
+                <select id="philosophySchool">
+                  <option value="stoicism" selected>Stoicism (Dichotomy of Control & Premeditatio)</option>
+                  <option value="existentialism">Existentialism (Radical Agency & Responsibility)</option>
+                  <option value="pragmatism">Pragmatism (Verification via Practical Consequence)</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="applyPhilosophyLens()">Apply Framework Directives</button>
+            </div>
+            <div class="terminal-output" id="philosophyOutput">
+[READY] Formulate operational challenge and apply classical reasoning models.
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Items & Tasks -->
+        <div class="card">
+          <header class="card-header">
+            <span class="card-title">Priority Deliverables & Tasks</span>
+            <span class="card-meta" id="taskCountMeta">{{ tasks|length }} Pending Items</span>
+          </header>
+          <div class="card-body">
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+              <input type="text" id="newTaskTitle" placeholder="Register new deliverable..." style="flex: 1;">
+              <select id="newTaskPriority" style="width: 110px;">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="addNewTask()">Add Item</button>
+            </div>
+
+            <table class="data-table" id="tasksTable">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Priority</th>
+                  <th>Title</th>
+                  <th style="width: 110px;">Due Date</th>
+                  <th style="width: 90px;">Category</th>
+                  <th style="width: 80px; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tasksTableBody">
+                {% for task in tasks %}
+                <tr id="task-row-{{ task.taskId }}">
+                  <td>
+                    <span class="badge badge-{{ task.priority|lower }}">{{ task.priority }}</span>
+                  </td>
+                  <td>{{ task.title }}</td>
+                  <td style="font-family: var(--font-mono);">{{ task.dueDate }}</td>
+                  <td>{{ task.category }}</td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-sm" onclick="completeTask({{ task.taskId }})">Done</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Media, Steam, Dispatchers & Logs -->
+      <aside class="side-column">
+
+        <!-- Spotify Media Control -->
+        <div class="card">
+          <header class="card-header">
+            <span class="card-title">Multimedia Controller</span>
+            <span class="card-meta" id="spotifyStatusMeta">{% if spotify.playback.isPlaying %}PLAYING{% else %}PAUSED{% endif %}</span>
+          </header>
+          <div class="card-body media-player">
+            <div class="track-info">
+              <span class="track-name" id="currentTrackTitle">{{ spotify.playback.trackTitle }}</span>
+              <span class="track-artist" id="currentTrackArtist">{{ spotify.playback.artist }} - {{ spotify.playback.album }}</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-bar" id="mediaProgressBar"></div>
+            </div>
+            <div class="player-controls">
+              <button class="btn btn-sm" onclick="controlSpotify('previous')">Prev</button>
+              <button class="btn btn-primary btn-sm" id="playToggleBtn" onclick="controlSpotify('toggle')">
+                {% if spotify.playback.isPlaying %}Pause{% else %}Play{% endif %}
+              </button>
+              <button class="btn btn-sm" onclick="controlSpotify('next')">Next</button>
+              <input type="range" id="volumeSlider" min="0" max="100" value="{{ spotify.playback.volumePercent }}" style="width: 80px; margin-left: auto;" onchange="setVolume(this.value)">
+            </div>
+            <div style="margin-top: 8px;">
+              <input type="text" id="playlistTextInput" placeholder="Titles or artists to compile playlist..." style="width: 100%; margin-bottom: 6px;">
+              <button class="btn btn-sm" style="width: 100%;" onclick="generatePlaylistFromText()">Generate Playlist from Text</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steam Game Launcher -->
+        <div class="card">
+          <header class="card-header">
+            <span class="card-title">Steam Local Launcher</span>
+            <span class="card-meta">{{ steamGames|length }} Titles</span>
+          </header>
+          <div class="card-body">
+            <div class="steam-list">
+              {% for game in steamGames[:4] %}
+              <div class="steam-item">
+                <div>
+                  <div class="steam-title">{{ game.title }}</div>
+                  <div class="steam-size">{{ game.sizeGb }} GB</div>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="launchSteamGame({{ game.appId }}, '{{ game.title }}')">Launch</button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority WhatsApp & Telegram Dispatcher -->
+        <div class="card">
+          <header class="card-header">
+            <span class="card-title">Dual Remote Dispatch</span>
+            <span class="card-meta">WhatsApp & Telegram</span>
+          </header>
+          <div class="card-body">
+            <input type="text" id="priorityMessageInput" placeholder="Priority executive message..." style="width: 100%; margin-bottom: 8px;">
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="dispatchWhatsAppAlert()">Send WhatsApp Alert</button>
+              <button class="btn btn-sm" style="flex: 1;" onclick="dispatchTelegramCommand()">Run Telegram Cmd</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time System Event Console -->
+        <div class="card">
+          <header class="card-header">
+            <span class="card-title">Executive Event Log</span>
+            <span class="card-meta">SSE STREAM</span>
+          </header>
+          <div class="card-body" style="padding: 10px;">
+            <div class="terminal-output" id="systemLogsTerminal" style="height: 200px;">
+[00:00:00] [INFO] LUMEN Stream Listening...
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

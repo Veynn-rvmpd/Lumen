@@ -1,0 +1,31 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment configuration
+.env
+.env.local
+
+# Temporary media and processed files
+tmp/
+temp/
+*.log
+*.tmp
+modules/temp_media/
+dashboard/static/uploads/
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
