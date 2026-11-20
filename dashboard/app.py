@@ -14,7 +14,7 @@ from typing import Dict, Any, List
 # Ensure parent directory is in Python path for direct module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, redirect
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -31,8 +31,10 @@ from modules import (
     amazon_cart_assistant,
     review_engine,
     mental_philosophy_advisor,
+    productivity_hub,
     file_system_sentinel,
     gmail_cleaner,
+    image_editor_helper,
     whatsapp_notifier,
     telegram_bot
 )
@@ -111,7 +113,7 @@ def sse_telemetry_stream():
                 "profile": process_env_manager.get_current_profile(),
                 "spotify": spotify_controller.spotifyControllerInstance.get_playback_status(),
                 "timestamp": datetime.now().isoformat(),
-                "recentLogs": SYSTEM_EVENT_LOGS[-5:]
+                "recentLogs": SYSTEM_EVENT_LOGS[-6:]
             }
             yield f"data: {json.dumps(telemetryPayload)}\n\n"
             time.sleep(2)
@@ -145,6 +147,11 @@ def handle_profile():
 
 
 # REST Endpoints: Spotify
+@app.route("/api/spotify/status", methods=["GET"])
+def spotify_status():
+    return jsonify(spotify_controller.spotifyControllerInstance.get_playback_status())
+
+
 @app.route("/api/spotify/control", methods=["POST"])
 def control_spotify():
     payload = request.get_json(silent=True) or {}
@@ -175,6 +182,30 @@ def generate_playlist():
     result = spotify_controller.spotifyControllerInstance.generate_playlist_from_text(textCatalog, title)
     append_system_log("OK", f"Playlist compiled: '{title}' ({result['trackCount']} tracks).")
     return jsonify(result)
+
+
+@app.route("/login/spotify")
+def spotify_oauth_redirect():
+    clientId = os.getenv("SPOTIFY_CLIENT_ID", "")
+    redirectUri = os.getenv("SPOTIFY_REDIRECT_URI", "http://localhost:5000/callback/spotify")
+    if not clientId:
+        return jsonify({"status": "[ERROR]", "message": "SPOTIFY_CLIENT_ID not configured in .env"}), 400
+
+    scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-modify-public"
+    authUrl = (
+        f"https://accounts.spotify.com/authorize?response_type=code"
+        f"&client_id={clientId}&scope={scope}&redirect_uri={redirectUri}"
+    )
+    return redirect(authUrl)
+
+
+@app.route("/callback/spotify")
+def spotify_oauth_callback():
+    code = request.args.get("code")
+    if code:
+        append_system_log("OK", "Spotify authorization code received.")
+        return redirect("/?spotify=connected")
+    return redirect("/?spotify=error")
 
 
 # REST Endpoints: Steam Launcher
@@ -230,6 +261,24 @@ def suggest_allocation():
     return jsonify(allocation)
 
 
+@app.route("/api/finance/budget", methods=["POST"])
+def calculate_budget():
+    payload = request.get_json(silent=True) or {}
+    income = float(payload.get("monthlyNetIncome", 3000.0))
+    framework = payload.get("framework", "50_30_20")
+    breakdown = personal_finance_hub.calculate_budget_breakdown(income, framework)
+    return jsonify(breakdown)
+
+
+@app.route("/api/finance/emergency", methods=["POST"])
+def calculate_emergency():
+    payload = request.get_json(silent=True) or {}
+    expenses = float(payload.get("monthlyBasicExpenses", 1600.0))
+    stability = payload.get("incomeStability", "stable")
+    fund = personal_finance_hub.calculate_emergency_fund(expenses, stability)
+    return jsonify(fund)
+
+
 # REST Endpoints: Calendar & Tasks
 @app.route("/api/tasks", methods=["GET", "POST"])
 def handle_tasks():
@@ -263,6 +312,44 @@ def extract_tasks():
     rawNotes = payload.get("notes", "")
     extracted = calendar_task_manager.extract_action_items_from_text(rawNotes)
     return jsonify({"extractedCount": len(extracted), "items": extracted})
+
+
+# REST Endpoints: Productivity Hub
+@app.route("/api/productivity/eisenhower", methods=["POST"])
+def calculate_eisenhower():
+    payload = request.get_json(silent=True) or {}
+    taskList = payload.get("tasks", calendar_task_manager.get_pending_tasks())
+    for t in taskList:
+        if "urgent" not in t:
+            t["urgent"] = t.get("priority") == "High"
+        if "important" not in t:
+            t["important"] = t.get("priority") in ["High", "Medium"]
+    quadrants = productivity_hub.prioritize_tasks_eisenhower(taskList)
+    return jsonify(quadrants)
+
+
+@app.route("/api/productivity/timebox", methods=["POST"])
+def calculate_timebox():
+    payload = request.get_json(silent=True) or {}
+    startHour = int(payload.get("startHour", 8))
+    endHour = int(payload.get("endHour", 18))
+    focusTask = payload.get("focusTask", "Core Architecture Execution")
+    meetings = int(payload.get("meetingBlocks", 2))
+    schedule = productivity_hub.generate_timeboxed_schedule(startHour, endHour, focusTask, meetings)
+    return jsonify({"schedule": schedule})
+
+
+@app.route("/api/productivity/matrix", methods=["POST"])
+def evaluate_matrix():
+    payload = request.get_json(silent=True) or {}
+    weights = payload.get("weights", {"impact": 0.40, "feasibility": 0.35, "speed": 0.25})
+    candidates = payload.get("candidates", [
+        {"name": "Architecture Refactoring", "scores": {"impact": 9, "feasibility": 8, "speed": 6}},
+        {"name": "Feature Prototyping", "scores": {"impact": 7, "feasibility": 9, "speed": 9}},
+        {"name": "Technical Debt Sweep", "scores": {"impact": 8, "feasibility": 7, "speed": 8}}
+    ])
+    matrixResult = productivity_hub.evaluate_decision_matrix(weights, candidates)
+    return jsonify(matrixResult)
 
 
 # REST Endpoints: Code Tutor & Writing Clarity
@@ -307,6 +394,18 @@ def compute_odds():
     return jsonify(sports_fitness_advisor.calculate_implied_odds_probability(oddsList))
 
 
+@app.route("/api/fitness/technique", methods=["POST"])
+def check_technique():
+    payload = request.get_json(silent=True) or {}
+    exercise = payload.get("exercise", "Barbell Back Squat")
+    return jsonify(sports_fitness_advisor.evaluate_exercise_technique(exercise))
+
+
+@app.route("/api/fitness/scoreboard", methods=["GET"])
+def get_scoreboard():
+    return jsonify(sports_fitness_advisor.get_current_scoreboard())
+
+
 # REST Endpoints: Amazon & Reviews
 @app.route("/api/amazon/search", methods=["POST"])
 def search_amazon():
@@ -333,6 +432,119 @@ def apply_lens():
     problem = payload.get("problem", "Delayed product launch and shifting client demands")
     school = payload.get("school", "stoicism")
     return jsonify(mental_philosophy_advisor.apply_philosophical_lens(problem, school))
+
+
+@app.route("/api/philosophy/bias", methods=["POST"])
+def analyze_bias():
+    payload = request.get_json(silent=True) or {}
+    scenario = payload.get("scenario", "We spent six months building this module so we must deploy it despite poor initial metrics.")
+    return jsonify(mental_philosophy_advisor.analyze_cognitive_bias(scenario))
+
+
+@app.route("/api/philosophy/practice", methods=["POST"])
+def deliberate_practice():
+    payload = request.get_json(silent=True) or {}
+    skill = payload.get("skill", "Distributed System Profiling")
+    return jsonify(mental_philosophy_advisor.generate_deliberate_practice_protocol(skill))
+
+
+# REST Endpoints: Filesystem Sentinel
+@app.route("/api/files/large", methods=["POST"])
+def find_large_files():
+    payload = request.get_json(silent=True) or {}
+    targetDir = payload.get("directory", os.path.expanduser("~\\Downloads"))
+    threshold = float(payload.get("thresholdMb", 100.0))
+    files = file_system_sentinel.scan_large_files(targetDir, threshold)
+    return jsonify({"directory": targetDir, "count": len(files), "largeFiles": files[:20]})
+
+
+@app.route("/api/files/organize", methods=["POST"])
+def organize_files():
+    payload = request.get_json(silent=True) or {}
+    targetDir = payload.get("directory", os.path.expanduser("~\\Downloads"))
+    dryRun = bool(payload.get("dryRun", True))
+    result = file_system_sentinel.organize_directory_by_type(targetDir, dryRun)
+    append_system_log("INFO", f"Directory organize scan executed on '{targetDir}' (DryRun: {dryRun}).")
+    return jsonify(result)
+
+
+@app.route("/api/files/clean", methods=["POST"])
+def clean_garbage():
+    payload = request.get_json(silent=True) or {}
+    targetDir = payload.get("directory", os.path.expanduser("~\\AppData\\Local\\Temp"))
+    dryRun = bool(payload.get("dryRun", True))
+    result = file_system_sentinel.clean_temporary_garbage(targetDir, dryRun)
+    append_system_log("INFO", f"Temporary garbage scan on '{targetDir}' (Cleaned: {result['filesIdentified']}).")
+    return jsonify(result)
+
+
+# REST Endpoints: Gmail Sentinel
+@app.route("/api/gmail/triage", methods=["GET"])
+def triage_gmail():
+    triageReport = gmail_cleaner.triage_sample_inbox()
+    return jsonify(triageReport)
+
+
+@app.route("/api/gmail/filters", methods=["GET"])
+def gmail_filters():
+    rules = gmail_cleaner.generate_gmail_filter_rules()
+    return jsonify({"rulesCount": len(rules), "filterRules": rules})
+
+
+@app.route("/api/gmail/unsubscribe", methods=["POST"])
+def extract_unsub():
+    payload = request.get_json(silent=True) or {}
+    bodyText = payload.get("body", "")
+    links = gmail_cleaner.extract_unsubscribe_links(bodyText)
+    return jsonify({"linksFound": len(links), "unsubscribeUrls": links})
+
+
+# REST Endpoints: Image Editor Helper
+@app.route("/api/image/inspect", methods=["POST"])
+def inspect_img():
+    payload = request.get_json(silent=True) or {}
+    path = payload.get("path", "")
+    return jsonify(image_editor_helper.inspect_image(path))
+
+
+@app.route("/api/image/compress", methods=["POST"])
+def compress_img():
+    payload = request.get_json(silent=True) or {}
+    src = payload.get("sourcePath", "")
+    out = payload.get("outputPath", "")
+    maxDim = int(payload.get("maxDimension", 1920))
+    qual = int(payload.get("quality", 82))
+    fmt = payload.get("format", "WEBP")
+    return jsonify(image_editor_helper.compress_for_web(src, out, maxDim, qual, fmt))
+
+
+@app.route("/api/image/watermark", methods=["POST"])
+def watermark_img():
+    payload = request.get_json(silent=True) or {}
+    src = payload.get("sourcePath", "")
+    out = payload.get("outputPath", "")
+    text = payload.get("text", "CONFIDENTIAL")
+    opacity = int(payload.get("opacity", 40))
+    pos = payload.get("position", "bottom_right")
+    return jsonify(image_editor_helper.add_text_watermark(src, out, text, opacity, pos))
+
+
+@app.route("/api/image/crop", methods=["POST"])
+def crop_img():
+    payload = request.get_json(silent=True) or {}
+    src = payload.get("sourcePath", "")
+    out = payload.get("outputPath", "")
+    box = tuple(payload.get("box", [0, 0, 500, 500]))
+    return jsonify(image_editor_helper.crop_image(src, out, box))
+
+
+@app.route("/api/image/convert", methods=["POST"])
+def convert_img():
+    payload = request.get_json(silent=True) or {}
+    src = payload.get("sourcePath", "")
+    out = payload.get("outputPath", "")
+    targetFmt = payload.get("format", "JPEG")
+    return jsonify(image_editor_helper.convert_format(src, out, targetFmt))
 
 
 # REST Endpoints: Messaging Dispatches

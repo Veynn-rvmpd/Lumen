@@ -12,8 +12,9 @@
   <header class="top-nav">
     <div class="brand-section">
       <span class="brand-logo">LUMEN</span>
-      <span class="brand-badge">CORE v1.0</span>
+      <span class="brand-badge">CORE v1.1</span>
       <span class="brand-badge" id="hostNameBadge">{{ telemetry.hostName }}</span>
+      <span class="kbd-badge" onclick="openCommandPalette()">Ctrl + K</span>
     </div>
 
     <div class="nav-actions">
@@ -76,15 +77,19 @@
         <div class="card">
           <nav class="tabs-header">
             <button class="tab-btn active" onclick="selectTab('financeTab', this)">Personal Finance</button>
+            <button class="tab-btn" onclick="selectTab('productivityTab', this)">Productivity</button>
             <button class="tab-btn" onclick="selectTab('codeTab', this)">Code & Writing</button>
             <button class="tab-btn" onclick="selectTab('fitnessTab', this)">Athletics & Odds</button>
             <button class="tab-btn" onclick="selectTab('procureTab', this)">Procurement & Review</button>
+            <button class="tab-btn" onclick="selectTab('filesTab', this)">Filesystem Sentinel</button>
+            <button class="tab-btn" onclick="selectTab('commsTab', this)">Gmail & Inbox</button>
             <button class="tab-btn" onclick="selectTab('philosophyTab', this)">Applied Philosophy</button>
+            <button class="tab-btn" onclick="selectTab('imageTab', this)">Image Studio</button>
           </nav>
 
           <!-- Tab 1: Personal Finance Hub -->
           <div class="tab-panel active" id="financeTab">
-            <h3 class="card-title" style="margin-bottom: 12px;">Compound Growth & Opportunity Cost Engine</h3>
+            <h3 class="card-title" style="margin-bottom: 12px;">Compound Growth, Budgeting & Asset Allocation</h3>
             <div class="form-grid">
               <div class="form-group">
                 <label for="initialCapital">Initial Capital (EUR)</label>
@@ -104,10 +109,12 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
               <button class="btn btn-primary" onclick="runCompoundProjection()">Calculate Growth Projection</button>
               <button class="btn" onclick="runAssetAllocation()">Suggest Asset Allocation</button>
               <button class="btn" onclick="evaluateExpenseDecision()">Evaluate Opportunity Cost</button>
+              <button class="btn" onclick="runBudgetBreakdown()">50/30/20 Budget Breakdown</button>
+              <button class="btn" onclick="runEmergencyFund()">Emergency Fund Reserve</button>
             </div>
 
             <div class="terminal-output" id="financeOutput">
@@ -115,12 +122,37 @@
             </div>
           </div>
 
-          <!-- Tab 2: Code Tutor & Writing Clarity -->
+          <!-- Tab 2: Productivity & Decisions Hub -->
+          <div class="tab-panel" id="productivityTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Eisenhower Matrix, Timeboxing & Decision Matrices</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="timeboxFocus">Timebox Focus Block Deliverable</label>
+                <input type="text" id="timeboxFocus" value="Distributed Architecture Refactoring">
+              </div>
+              <div class="form-group">
+                <label for="timeboxMeetings">Meeting Allowance Blocks</label>
+                <input type="number" id="timeboxMeetings" value="2" min="0" max="6">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="generateTimeboxSchedule()">Generate Timeboxed Day</button>
+              <button class="btn" onclick="runEisenhowerSort()">Eisenhower Priority Quadrants</button>
+              <button class="btn" onclick="runDecisionMatrix()">Weighted Decision Scoring</button>
+            </div>
+
+            <div class="terminal-output" id="productivityOutput">
+[READY] Select a productivity protocol above to generate timeboxes or decision models.
+            </div>
+          </div>
+
+          <!-- Tab 3: Code Tutor & Writing Clarity -->
           <div class="tab-panel" id="codeTab">
             <h3 class="card-title" style="margin-bottom: 12px;">Static Code Audit & Editorial Refinement</h3>
             <div class="form-grid">
               <div class="form-group full-width">
-                <label for="codeSnippet">Python Source Snippet</label>
+                <label for="codeSnippet">Python Source Snippet / Executive Prose</label>
                 <textarea id="codeSnippet" rows="6" placeholder="def process_batch(records):&#10;    result = ''&#10;    for r in records:&#10;        result += str(r)&#10;    return result"></textarea>
               </div>
             </div>
@@ -134,9 +166,9 @@
             </div>
           </div>
 
-          <!-- Tab 3: Athletics & Odds Analytics -->
+          <!-- Tab 4: Athletics & Odds Analytics -->
           <div class="tab-panel" id="fitnessTab">
-            <h3 class="card-title" style="margin-bottom: 12px;">Programming Split & Implied Odds Calculation</h3>
+            <h3 class="card-title" style="margin-bottom: 12px;">Programming Split, Biomechanical Form & Odds Analysis</h3>
             <div class="form-grid">
               <div class="form-group">
                 <label for="trainingDays">Weekly Training Days</label>
@@ -150,17 +182,30 @@
                 <label for="oddsInput">Decimal Odds (Comma-separated)</label>
                 <input type="text" id="oddsInput" value="1.85, 3.40, 4.20" placeholder="1.85, 3.40, 4.20">
               </div>
+              <div class="form-group">
+                <label for="exerciseSelect">Biomechanical Technique Cue</label>
+                <select id="exerciseSelect">
+                  <option value="Barbell Back Squat" selected>Barbell Back Squat</option>
+                  <option value="Conventional Deadlift">Conventional Deadlift</option>
+                  <option value="Barbell Bench Press">Barbell Bench Press</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Active Scoreboard</label>
+                <button class="btn btn-sm" style="margin-top: 18px;" onclick="refreshScoreboard()">Fetch Match Scores</button>
+              </div>
             </div>
             <div style="display: flex; gap: 8px; margin-bottom: 16px;">
               <button class="btn btn-primary" onclick="generateWorkoutPlan()">Generate Split</button>
               <button class="btn" onclick="calculateOddsProbability()">Compute Implied Probability & Margin</button>
+              <button class="btn" onclick="checkExerciseTechnique()">Inspect Form Cues</button>
             </div>
             <div class="terminal-output" id="fitnessOutput">
 [READY] Select weekly frequency or enter bookmaker decimal odds.
             </div>
           </div>
 
-          <!-- Tab 4: Procurement & Review -->
+          <!-- Tab 5: Procurement & Review -->
           <div class="tab-panel" id="procureTab">
             <h3 class="card-title" style="margin-bottom: 12px;">Amazon Direct Procurement & Trade-off Review</h3>
             <div class="form-grid">
@@ -186,9 +231,51 @@
             </div>
           </div>
 
-          <!-- Tab 5: Applied Philosophy -->
+          <!-- Tab 6: Filesystem Sentinel -->
+          <div class="tab-panel" id="filesTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Storage Sentinel, Large File Inspector & Folder Organization</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="scanDirectory">Target Directory Path</label>
+                <input type="text" id="scanDirectory" value="C:\Users\Public\Downloads" placeholder="Full filesystem path">
+              </div>
+              <div class="form-group">
+                <label for="sizeThreshold">Large File Threshold (MB)</label>
+                <input type="number" id="sizeThreshold" value="100" min="10" max="10000">
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="scanLargeFiles()">Scan Large Files (>100MB)</button>
+              <button class="btn" onclick="organizeFiles(true)">Simulate Organize (Dry Run)</button>
+              <button class="btn" onclick="cleanGarbageFiles(true)">Simulate Temp Cleaner (Dry Run)</button>
+            </div>
+            <div class="terminal-output" id="filesOutput">
+[READY] Enter filesystem path and execute storage sentinel scan.
+            </div>
+          </div>
+
+          <!-- Tab 7: Communications & Gmail Inbox -->
+          <div class="tab-panel" id="commsTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Inbox Triage, Newsletter Extraction & Archival Rules</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="emailRawBody">Email Message Body (To extract unsubscribe links)</label>
+                <textarea id="emailRawBody" rows="4" placeholder="Paste email plain text or HTML containing opt-out / unsubscribe links..."></textarea>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="runGmailTriage()">Run Inbox Triage Audit</button>
+              <button class="btn" onclick="fetchGmailFilters()">View Recommended Filter Rules</button>
+              <button class="btn" onclick="extractUnsubscribeUrls()">Extract Unsubscribe Hyperlinks</button>
+            </div>
+            <div class="terminal-output" id="commsOutput">
+[READY] Click 'Run Inbox Triage Audit' to classify correspondence streams.
+            </div>
+          </div>
+
+          <!-- Tab 8: Applied Philosophy -->
           <div class="tab-panel" id="philosophyTab">
-            <h3 class="card-title" style="margin-bottom: 12px;">Decision Frameworks & Cognitive Bias Mitigation</h3>
+            <h3 class="card-title" style="margin-bottom: 12px;">Cognitive Bias Mitigation & Classical Frameworks</h3>
             <div class="form-grid">
               <div class="form-group full-width">
                 <label for="problemDescription">Operational Dilemma or Friction</label>
@@ -202,14 +289,56 @@
                   <option value="pragmatism">Pragmatism (Verification via Practical Consequence)</option>
                 </select>
               </div>
+              <div class="form-group">
+                <label for="skillPractice">Deliberate Practice Skill</label>
+                <input type="text" id="skillPractice" value="Concurrent Concurrency Profiling">
+              </div>
             </div>
             <div style="display: flex; gap: 8px; margin-bottom: 16px;">
               <button class="btn btn-primary" onclick="applyPhilosophyLens()">Apply Framework Directives</button>
+              <button class="btn" onclick="detectCognitiveBiases()">Analyze Cognitive Biases</button>
+              <button class="btn" onclick="generateDeliberatePractice()">Deliberate Practice Protocol</button>
             </div>
             <div class="terminal-output" id="philosophyOutput">
 [READY] Formulate operational challenge and apply classical reasoning models.
             </div>
           </div>
+
+          <!-- Tab 9: Image Studio -->
+          <div class="tab-panel" id="imageTab">
+            <h3 class="card-title" style="margin-bottom: 12px;">Pillow Image Inspector & Compression Helper</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="imageSourcePath">Source Image Absolute Path</label>
+                <input type="text" id="imageSourcePath" placeholder="C:\path\to\image.png">
+              </div>
+              <div class="form-group">
+                <label for="imageOutputPath">Output Path</label>
+                <input type="text" id="imageOutputPath" placeholder="C:\path\to\image_optimized.webp">
+              </div>
+              <div class="form-group">
+                <label for="imageWatermarkText">Watermark Text</label>
+                <input type="text" id="imageWatermarkText" value="LUMEN CONFIDENTIAL">
+              </div>
+              <div class="form-group">
+                <label for="imageTargetFormat">Target Compression Format</label>
+                <select id="imageTargetFormat">
+                  <option value="WEBP" selected>WebP (High efficiency)</option>
+                  <option value="JPEG">JPEG</option>
+                  <option value="PNG">PNG</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="btn btn-primary" onclick="inspectLocalImage()">Inspect Metadata</button>
+              <button class="btn" onclick="compressImageWeb()">Compress for Web</button>
+              <button class="btn" onclick="applyWatermarkImage()">Apply Watermark</button>
+            </div>
+            <div class="terminal-output" id="imageOutput">
+[READY] Enter local image path to inspect dimensions, aspect ratio, and compression potential.
+            </div>
+          </div>
+
         </div>
 
         <!-- Action Items & Tasks -->
@@ -320,7 +449,7 @@
             <span class="card-meta">WhatsApp & Telegram</span>
           </header>
           <div class="card-body">
-            <input type="text" id="priorityMessageInput" placeholder="Priority executive message..." style="width: 100%; margin-bottom: 8px;">
+            <input type="text" id="priorityMessageInput" placeholder="Priority executive message or /command..." style="width: 100%; margin-bottom: 8px;">
             <div style="display: flex; gap: 8px;">
               <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="dispatchWhatsAppAlert()">Send WhatsApp Alert</button>
               <button class="btn btn-sm" style="flex: 1;" onclick="dispatchTelegramCommand()">Run Telegram Cmd</button>
@@ -346,6 +475,18 @@
     </div>
 
   </main>
+
+  <!-- Command Palette Modal (Ctrl + K) -->
+  <div class="command-palette-backdrop" id="commandPaletteBackdrop" onclick="handlePaletteBackdropClick(event)">
+    <div class="command-palette-box">
+      <div class="command-palette-input-wrapper">
+        <input type="text" class="command-palette-input" id="commandPaletteInput" placeholder="Type a command or jump to module..." oninput="filterPaletteCommands(this.value)" onkeydown="handlePaletteKeydown(event)">
+      </div>
+      <div class="command-palette-results" id="commandPaletteResults">
+        <!-- Rendered dynamically via dashboard.js -->
+      </div>
+    </div>
+  </div>
 
   <script src="/static/js/dashboard.js"></script>
 </body>
