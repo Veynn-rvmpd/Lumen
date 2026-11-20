@@ -50,17 +50,7 @@ lumen/
 
 ---
 
-## 2. Design Principles & Anti-AI Aesthetic
-
-- Zero Emojis: Absolute prohibition of emoji pictographs across code, logs, user interfaces, and messaging alerts. Sober status tokens (`[OK]`, `[INFO]`, `[ALERT]`, `[READY]`) and 6px monochrome CSS dots are used instead.
-- Color Palette: Zinc and charcoal background (`#121212`), high-contrast off-white typography (`#EDEDED`), razor-sharp borders (`#27272A`), and a single matte terracotta accent (`#C25E3E`).
-- Typography: Clean system sans-serif font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif`) with monospace tabular numbers.
-- Command Palette: Raycast / Linear style `Ctrl + K` quick launcher to jump across all modules and execute functions with zero mouse clicks.
-- Pragmatic Codebase: Clear, readable functions with real domain variable names (`portfolioYield`, `matchScore`, `weeklyPlan`). No tutorial-style boilerplate or unnecessary design patterns.
-
----
-
-## 3. Core Functional Capabilities
+## 2. Core Functional Capabilities
 
 ### Personal Finance Hub (`modules/personal_finance_hub.py`)
 - `calculate_compound_growth(initialCapital, monthlyContribution, annualReturnRate, years)`: Projects wealth accumulation year-by-year, segregating total deposits from compounded returns.
@@ -107,7 +97,7 @@ lumen/
 
 ---
 
-## 4. Setup & Installation
+## 3. Setup & Installation
 
 ### Requirements
 - Python 3.10+ (Tested on Python 3.14 / 3.15)
@@ -126,7 +116,7 @@ cp .env.template .env
 
 ---
 
-## 5. Execution
+## 4. Execution
 
 ### Start Primary Orchestrator & Dashboard
 ```bash
@@ -148,7 +138,7 @@ Access the web interface at `http://127.0.0.1:5000`.
 
 ---
 
-## 6. Running Automated Tests
+## 5. Running Automated Tests
 
 Run the full verification suite covering all modules:
 ```bash
@@ -157,7 +147,7 @@ py -m unittest tests/test_core_modules.py
 
 ---
 
-## 7. Remote Messaging Configuration
+## 6. Remote Messaging Configuration
 
 ### WhatsApp Priority Notifier
 Configure Twilio credentials in `.env` to enable priority P1/P2 WhatsApp alerts:
@@ -184,5 +174,5 @@ Supported remote commands:
 
 ---
 
-## 8. License & Compliance
+## 7. License & Compliance
 Proprietary executive software. All rights reserved.
